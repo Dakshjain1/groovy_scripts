@@ -79,7 +79,7 @@ description ("It will launch on production env")
         upstream('task6_job3_testapp', 'SUCCESS')
     }
 steps {
-        shell('curl 192.168.99.101:31001')
+        shell('curl 192.168.99.100:31001')
     }
 }
 
