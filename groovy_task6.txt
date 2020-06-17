@@ -85,7 +85,7 @@ steps {
 
 
 
-buildPipelineView('groovy_task6') {
+buildPipelineView('groovyyy_task6') {
     title('groovy_task6')
     displayedBuilds(5)
     selectedJob('task6_job1_gitpull')
