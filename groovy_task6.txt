@@ -1,5 +1,5 @@
 job("task6_job1_gitpull") {
-description ("it will pull code from GitHub")
+description ("It will pull code from GitHub")
   scm{
     github('Dakshjain1/task_2','master')
   }
