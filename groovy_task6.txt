@@ -1,0 +1,94 @@
+job("task6_job1_gitpull") {
+description ("it will pull code from GitHub")
+  scm{
+    github('Dakshjain1/task_2','master')
+  }
+  triggers {
+        githubPush()
+    }
+   steps {
+        shell('sudo cp -rvf * /djtask3')
+    }
+}
+
+
+job("task6_job2_launchpod") {
+description ("It will create the pods")
+label('kubectl')
+  triggers {
+        upstream('task6_job1_gitpull', 'SUCCESS')
+    }
+   steps {
+        shell('''cd /root/.kube
+python3 prog.py
+export count=$(kubectl get deployments | grep webserver | wc -l)
+echo $count
+if [ $count -eq 1 ]
+then
+echo "Pod is already running"
+kubectl replace -f /root/.kube/website_deploy.yaml
+else
+kubectl create -f /root/.kube/website_deploy.yaml
+kubectl create -f /root/.kube/website_service.yaml
+fi''')
+    }
+}
+
+
+job("task6_job3_testapp") {
+description ("It will test if pod is running else send a mail")
+
+  triggers {
+        upstream('task6_job2_launchpod', 'SUCCESS')
+    }
+steps {
+        shell('''if sudo kubectl get deployments webserver
+then
+echo "send to production"
+else
+echo "sending back to developer"
+exit 1
+fi''')
+    }
+ publishers {
+        extendedEmail {
+            recipientList('daksh.jain00@gmail.com')
+            defaultSubject('Failed build')
+            defaultContent('The build was failed')
+            contentType('text/html')
+            triggers {
+                failure{
+    		    attachBuildLog(true)
+                    subject('Failed build')
+                    content('The build was failed')
+                    sendTo {
+                        developers()
+                        
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+job("task6_job4_monitor_launch") {
+description ("It will launch on production env")
+
+  triggers {
+        upstream('task6_job3_testapp', 'SUCCESS')
+    }
+steps {
+        shell('curl 192.168.99.101:31001')
+    }
+}
+
+
+
+buildPipelineView('groovy pipeline') {
+    title('task6groovy')
+    displayedBuilds(5)
+    selectedJob('groovyjob1')
+    showPipelineParameters(true)
+    refreshFrequency(3)
+}
