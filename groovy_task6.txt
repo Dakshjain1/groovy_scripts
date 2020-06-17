@@ -88,7 +88,7 @@ steps {
 buildPipelineView('groovy pipeline') {
     title('task6groovy')
     displayedBuilds(5)
-    selectedJob('groovyjob1')
+    selectedJob('task6_job1_gitpull')
     showPipelineParameters(true)
     refreshFrequency(3)
 }
